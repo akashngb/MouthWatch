@@ -1,4 +1,4 @@
-welcome to my project for sm[ile h]acks 2026
+sm[ile h]acks 2026!
 
 # MouthWatch 🦷
 
