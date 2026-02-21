@@ -105,10 +105,6 @@ export default function ResultsScreen() {
               <Text style={styles.breakdownLabel}>Risk Factor Score</Text>
               <Text style={styles.breakdownValue}>{result.risk_factor_score?.toFixed(1)}/100</Text>
             </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>Top Prediction</Text>
-              <Text style={styles.breakdownValue}>{result.ml_prediction}</Text>
-            </View>
           </View>
 
           {/* Urgency */}
