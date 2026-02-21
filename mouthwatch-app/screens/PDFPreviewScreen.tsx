@@ -16,7 +16,7 @@ export default function PDFPreviewScreen() {
   const handleSendToDentist = () => {
     Alert.alert(
       'Send to Dentist',
-      'This feature is coming soon. Your dentist will receive your report directly.',
+      'Select your clinic and dentist in the find tab to access this tool!',
       [{ text: 'OK' }]
     );
   };

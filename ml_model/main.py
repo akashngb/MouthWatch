@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask import send_from_directory
 from flask_cors import CORS
 import tensorflow as tf
 import numpy as np
@@ -92,6 +93,14 @@ def get_risk_color(combined_score: float) -> dict:
 def health():
     load_model_once()
     return jsonify({"status": "ok", "model_loaded": model is not None})
+
+@app.route('/three.min.js')
+def serve_three():
+    return send_from_directory('/Users/akashn/Downloads/smacks/ml_model', 'three.min.js')
+
+@app.route('/GLTFLoader.js')
+def serve_gltf_loader():
+    return send_from_directory('/Users/akashn/Downloads/smacks/ml_model', 'GLTFLoader.js')
 
 @app.route('/teeth.glb')
 def serve_model():
