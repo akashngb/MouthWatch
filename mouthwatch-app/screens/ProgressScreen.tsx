@@ -10,11 +10,15 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 const INITIAL_HISTORY = [
   {
     id: '1',
-    date: 'Feb 20, 2026',
+    date: 'Feb 21, 2026',
     color: 'red',
     label: 'High Risk',
     score: 67.6,
     lesion: 'Bottom left cheek',
+    annotations: [
+      { position: [-0.3, -0.2, 0.4], severity: 'urgent', label: 'Suspicious lesion', note: 'Flagged by MouthWatch — monitor closely' },
+      { position: [0.4, -0.1, 0.35], severity: 'watch', label: 'Early cavity', note: 'Early demineralization — review at next visit' },
+    ],
   },
   {
     id: '2',
@@ -23,6 +27,9 @@ const INITIAL_HISTORY = [
     label: 'Moderate Risk',
     score: 45.2,
     lesion: 'Bottom left cheek',
+    annotations: [
+      { position: [0.2, -0.15, 0.38], severity: 'watch', label: 'Minor irritation', note: 'Watch at next visit' },
+    ],
   },
   {
     id: '3',
@@ -31,6 +38,7 @@ const INITIAL_HISTORY = [
     label: 'Low Risk',
     score: 22.1,
     lesion: 'Bottom left cheek',
+    annotations: [],
   },
 ];
 
@@ -55,14 +63,26 @@ export default function ProgressScreen() {
     ? history[0].score > history[1].score
       ? 'increasing'
       : history[0].score < history[1].score
-      ? 'decreasing'
-      : 'stable'
+        ? 'decreasing'
+        : 'stable'
     : 'stable';
 
   const trendConfig = {
-    increasing: { color: '#ff1744', icon: 'trending-up', text: 'Your risk has been increasing — consider booking a dentist visit.' },
-    decreasing: { color: '#00e676', icon: 'trending-down', text: 'Your risk has been decreasing — keep up the good work!' },
-    stable: { color: '#ffea00', icon: 'minus', text: 'Your risk has been stable. Keep monitoring regularly.' },
+    increasing: {
+      color: '#ff1744',
+      icon: 'trending-up',
+      text: 'Your risk has been increasing — consider booking a dentist visit.',
+    },
+    decreasing: {
+      color: '#00e676',
+      icon: 'trending-down',
+      text: 'Your risk has been decreasing — keep up the good work!',
+    },
+    stable: {
+      color: '#ffea00',
+      icon: 'minus',
+      text: 'Your risk has been stable. Keep monitoring regularly.',
+    },
   }[trend];
 
   return (
@@ -77,8 +97,34 @@ export default function ProgressScreen() {
           backgroundColor: `${trendConfig.color}15`,
         }]}>
           <Feather name={trendConfig.icon as any} size={18} color={trendConfig.color} />
-          <Text style={[styles.trendText, { color: trendConfig.color }]}>{trendConfig.text}</Text>
+          <Text style={[styles.trendText, { color: trendConfig.color }]}>
+            {trendConfig.text}
+          </Text>
         </View>
+
+        {/* 3D Model Button */}
+        <TouchableOpacity
+          style={styles.modelButton}
+          onPress={() => navigation.navigate('ModelViewer', {
+            annotations: history[0]?.annotations || [],
+            patientName: 'Your',
+          })}
+          activeOpacity={0.85}
+        >
+          <LinearGradient
+            colors={['rgba(0,194,255,0.12)', 'rgba(0,114,255,0.06)']}
+            style={styles.modelButtonInner}
+          >
+            <View style={styles.modelIconCircle}>
+              <Feather name="box" size={18} color="#00c2ff" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.modelButtonTitle}>View 3D Mouth Model</Text>
+              <Text style={styles.modelButtonSub}>See your annotated scan results</Text>
+            </View>
+            <Feather name="chevron-right" size={16} color="rgba(0,194,255,0.5)" />
+          </LinearGradient>
+        </TouchableOpacity>
 
         <ScrollView showsVerticalScrollIndicator={false}>
           {history.map((item, index) => (
@@ -100,18 +146,36 @@ export default function ProgressScreen() {
                     </Text>
                   </View>
                 </View>
+
                 <Text style={styles.historyLesion}>{item.lesion}</Text>
+
                 <View style={styles.scoreBar}>
                   <View style={[styles.scoreBarFill, {
-                    width: `${item.score}%`,
+                    width: `${item.score}%` as any,
                     backgroundColor: COLOR_MAP[item.color],
                   }]} />
                 </View>
-                <Text style={styles.scoreText}>Score: {item.score}/100</Text>
+
+                <View style={styles.historyFooter}>
+                  <Text style={styles.scoreText}>Score: {item.score}/100</Text>
+                  {item.annotations && item.annotations.length > 0 && (
+                    <TouchableOpacity
+                      style={styles.viewModelBtn}
+                      onPress={() => navigation.navigate('ModelViewer', {
+                        annotations: item.annotations,
+                        patientName: 'Your',
+                      })}
+                    >
+                      <Feather name="box" size={12} color="#00c2ff" />
+                      <Text style={styles.viewModelText}>View Model</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             </View>
           ))}
 
+          {/* New Scan Button */}
           <TouchableOpacity
             style={styles.newScanButton}
             onPress={() => navigation.navigate('Scan', { screen: 'IntakeForm' })}
@@ -152,13 +216,46 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   trendText: {
     fontSize: 13,
     flex: 1,
     lineHeight: 18,
     fontWeight: '500',
+  },
+  modelButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0,194,255,0.2)',
+  },
+  modelButtonInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    gap: 12,
+  },
+  modelIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,194,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,194,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modelButtonTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#00c2ff',
+    marginBottom: 2,
+  },
+  modelButtonSub: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.35)',
   },
   historyItem: { flexDirection: 'row', gap: 16, marginBottom: 8 },
   timeline: { alignItems: 'center', width: 16, paddingTop: 4 },
@@ -208,7 +305,28 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   scoreBarFill: { height: 4, borderRadius: 2 },
+  historyFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   scoreText: { fontSize: 12, color: 'rgba(255,255,255,0.35)' },
+  viewModelBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(0,194,255,0.08)',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(0,194,255,0.2)',
+  },
+  viewModelText: {
+    fontSize: 11,
+    color: '#00c2ff',
+    fontWeight: '600',
+  },
   newScanButton: {
     borderRadius: 16,
     overflow: 'hidden',

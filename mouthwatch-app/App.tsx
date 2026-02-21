@@ -13,6 +13,7 @@ import ProgressScreen from './screens/ProgressScreen';
 import ClinicFinderScreen from './screens/ClinicFinderScreen';
 import ChatScreen from './screens/ChatScreen';
 import PDFPreviewScreen from './screens/PDFPreviewScreen';
+import ModelViewerScreen from './screens/ModelViewerScreen';
 import 'react-native-gesture-handler';
 
 
@@ -27,6 +28,7 @@ function PatientStack() {
       <Stack.Screen name="PDFPreview" component={PDFPreviewScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />
       <Stack.Screen name="Results" component={ResultsScreen} />
+      <Stack.Screen name="ModelViewer" component={ModelViewerScreen} />
     </Stack.Navigator>
   );
 }
